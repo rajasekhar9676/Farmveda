@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Logo from '@/components/Logo';
 import Button from '@/components/Button';
@@ -8,7 +8,7 @@ import { ArrowLeft, Download, FileText, Package } from 'lucide-react';
 import { formatDate, formatCurrency } from '@/lib/utils';
 import { Order } from '@/lib/types';
 
-export default function Orders() {
+function OrdersContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -185,5 +185,17 @@ export default function Orders() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Orders() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-[#3a8735] text-xl">Loading...</div>
+      </div>
+    }>
+      <OrdersContent />
+    </Suspense>
   );
 }

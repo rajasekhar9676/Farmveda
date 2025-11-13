@@ -6,7 +6,7 @@ import { formatDate, formatCurrency } from '@/lib/utils';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await getAuthUser();
@@ -17,7 +17,8 @@ export async function GET(
       );
     }
 
-    const order = await findOrderById(params.id);
+    const { id } = await context.params;
+    const order = await findOrderById(id);
 
     if (!order) {
       return NextResponse.json(

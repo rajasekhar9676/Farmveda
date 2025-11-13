@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
         // When order is delivered, generate payment link and QR code
         if (status === 'delivered') {
-          updates.deliveredAt = new Date();
+          updates.deliveredAt = new Date().toISOString();
           const paymentLink = `${baseUrl}/payment/${order.id}`;
           updates.paymentLink = paymentLink;
 
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
         // When payment is completed
         if (status === 'paid') {
-          updates.paidAt = new Date();
+          updates.paidAt = new Date().toISOString();
         }
 
         await updateOrder(orderId, updates);

@@ -13,7 +13,7 @@ const ProductSchema = new Schema<IProduct>({
   availableDate: { type: String, required: true, index: true },
   description: { type: String, default: '' },
   image: { type: String, default: '' },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: String, default: () => new Date().toISOString() },
 });
 
 const ProductModel: Model<IProduct> = mongoose.models.Product || mongoose.model<IProduct>('Product', ProductSchema);

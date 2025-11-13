@@ -40,9 +40,9 @@ const OrderSchema = new Schema<IOrder>({
   deliveryDate: { type: String, required: true, index: true },
   paymentLink: { type: String, default: '' },
   paymentQRCode: { type: String, default: '' },
-  paidAt: { type: Date },
-  deliveredAt: { type: Date },
-  createdAt: { type: Date, default: Date.now },
+  paidAt: { type: String, default: '' },
+  deliveredAt: { type: String, default: '' },
+  createdAt: { type: String, default: () => new Date().toISOString() },
 });
 
 const OrderModel: Model<IOrder> = mongoose.models.Order || mongoose.model<IOrder>('Order', OrderSchema);

@@ -5,7 +5,7 @@ import QRCode from 'qrcode';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await getAuthUser();
@@ -16,8 +16,9 @@ export async function PATCH(
       );
     }
 
+    const { id } = await context.params;
     const { status } = await request.json();
-    const order = await findOrderById(params.id);
+    const order = await findOrderById(id);
 
     if (!order) {
       return NextResponse.json(
@@ -30,7 +31,7 @@ export async function PATCH(
 
     // When order is delivered, generate payment link and QR code
     if (status === 'delivered') {
-      updates.deliveredAt = new Date();
+      updates.deliveredAt = new Date().toISOString();
       
       // Generate payment link (you can customize this URL)
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -48,10 +49,10 @@ export async function PATCH(
 
     // When payment is completed
     if (status === 'paid') {
-      updates.paidAt = new Date();
+      updates.paidAt = new Date().toISOString();
     }
 
-    const updatedOrder = await updateOrder(params.id, updates);
+    const updatedOrder = await updateOrder(id, updates);
 
     return NextResponse.json({ success: true, order: updatedOrder });
   } catch (error) {

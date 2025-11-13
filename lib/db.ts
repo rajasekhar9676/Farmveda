@@ -5,6 +5,14 @@ import OrderModel from '@/models/Order';
 import { User, Product, Order } from './types';
 import bcrypt from 'bcryptjs';
 
+// Helper function to convert date to ISO string
+function toISOString(date: any): string {
+  if (!date) return new Date().toISOString();
+  if (date instanceof Date) return date.toISOString();
+  if (typeof date === 'string') return new Date(date).toISOString();
+  return new Date(date).toISOString();
+}
+
 // Initialize database connection
 export async function initDB() {
   await connectDB();
@@ -22,7 +30,7 @@ export async function readUsers(): Promise<User[]> {
     password: user.password,
     role: user.role,
     address: user.address,
-    createdAt: user.createdAt.toISOString(),
+    createdAt: toISOString(user.createdAt),
   }));
 }
 
@@ -73,7 +81,7 @@ export async function createUser(userData: Omit<User, 'id' | 'createdAt'>): Prom
         city: '',
         pincode: '',
       },
-      createdAt: user.createdAt.toISOString(),
+      createdAt: toISOString(user.createdAt),
     };
   } catch (error: any) {
     console.error('Error creating user:', error);
@@ -96,7 +104,7 @@ export async function findUserByMobile(mobile: string): Promise<User | null> {
     password: user.password,
     role: user.role,
     address: user.address,
-    createdAt: user.createdAt.toISOString(),
+    createdAt: toISOString(user.createdAt),
   };
 }
 
@@ -112,7 +120,7 @@ export async function findUserById(id: string): Promise<User | null> {
     password: user.password,
     role: user.role,
     address: user.address,
-    createdAt: user.createdAt.toISOString(),
+    createdAt: toISOString(user.createdAt),
   };
 }
 
@@ -128,7 +136,7 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Us
     password: user.password,
     role: user.role,
     address: user.address,
-    createdAt: user.createdAt.toISOString(),
+    createdAt: toISOString(user.createdAt),
   };
 }
 
@@ -145,7 +153,7 @@ export async function readProducts(): Promise<Product[]> {
     availableDate: product.availableDate,
     description: product.description || '',
     image: product.image || '',
-    createdAt: product.createdAt.toISOString(),
+    createdAt: toISOString(product.createdAt),
   }));
 }
 
@@ -162,7 +170,7 @@ export async function createProduct(productData: Omit<Product, 'id' | 'createdAt
     availableDate: product.availableDate,
     description: product.description || '',
     image: product.image || '',
-    createdAt: product.createdAt.toISOString(),
+    createdAt: toISOString(product.createdAt),
   };
 }
 
@@ -179,7 +187,7 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
     availableDate: product.availableDate,
     description: product.description || '',
     image: product.image || '',
-    createdAt: product.createdAt.toISOString(),
+    createdAt: toISOString(product.createdAt),
   };
 }
 
@@ -196,7 +204,7 @@ export async function findProductById(id: string): Promise<Product | null> {
     availableDate: product.availableDate,
     description: product.description || '',
     image: product.image || '',
-    createdAt: product.createdAt.toISOString(),
+    createdAt: toISOString(product.createdAt),
   };
 }
 
@@ -217,9 +225,9 @@ export async function readOrders(): Promise<Order[]> {
     deliveryDate: order.deliveryDate,
     paymentLink: order.paymentLink || '',
     paymentQRCode: order.paymentQRCode || '',
-    paidAt: order.paidAt?.toISOString(),
-    deliveredAt: order.deliveredAt?.toISOString(),
-    createdAt: order.createdAt.toISOString(),
+    paidAt: order.paidAt || undefined,
+    deliveredAt: order.deliveredAt || undefined,
+    createdAt: order.createdAt || new Date().toISOString(),
   }));
 }
 
@@ -240,9 +248,9 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'createdAt'>): P
     deliveryDate: order.deliveryDate,
     paymentLink: order.paymentLink || '',
     paymentQRCode: order.paymentQRCode || '',
-    paidAt: order.paidAt?.toISOString(),
-    deliveredAt: order.deliveredAt?.toISOString(),
-    createdAt: order.createdAt.toISOString(),
+    paidAt: order.paidAt || undefined,
+    deliveredAt: order.deliveredAt || undefined,
+    createdAt: order.createdAt || new Date().toISOString(),
   };
 }
 
@@ -263,9 +271,9 @@ export async function updateOrder(id: string, updates: Partial<Order>): Promise<
     deliveryDate: order.deliveryDate,
     paymentLink: order.paymentLink || '',
     paymentQRCode: order.paymentQRCode || '',
-    paidAt: order.paidAt?.toISOString(),
-    deliveredAt: order.deliveredAt?.toISOString(),
-    createdAt: order.createdAt.toISOString(),
+    paidAt: order.paidAt || undefined,
+    deliveredAt: order.deliveredAt || undefined,
+    createdAt: order.createdAt || new Date().toISOString(),
   };
 }
 
@@ -286,9 +294,9 @@ export async function findOrderById(id: string): Promise<Order | null> {
     deliveryDate: order.deliveryDate,
     paymentLink: order.paymentLink || '',
     paymentQRCode: order.paymentQRCode || '',
-    paidAt: order.paidAt?.toISOString(),
-    deliveredAt: order.deliveredAt?.toISOString(),
-    createdAt: order.createdAt.toISOString(),
+    paidAt: order.paidAt || undefined,
+    deliveredAt: order.deliveredAt || undefined,
+    createdAt: order.createdAt || new Date().toISOString(),
   };
 }
 

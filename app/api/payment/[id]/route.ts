@@ -4,10 +4,11 @@ import { getAuthUser } from '@/lib/auth';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const order = await findOrderById(params.id);
+    const { id } = await context.params;
+    const order = await findOrderById(id);
 
     if (!order) {
       return NextResponse.json(
@@ -27,7 +28,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const auth = await getAuthUser();
@@ -38,8 +39,8 @@ export async function POST(
       );
     }
 
-    const orders = readOrders();
-    const order = orders.find(o => o.id === params.id);
+    const { id } = await context.params;
+    const order = await findOrderById(id);
 
     if (!order) {
       return NextResponse.json(
@@ -57,7 +58,7 @@ export async function POST(
     }
 
     // Mark as paid
-    const updatedOrder = await updateOrder(params.id, {
+    const updatedOrder = await updateOrder(id, {
       status: 'paid',
       paidAt: new Date().toISOString(),
     });

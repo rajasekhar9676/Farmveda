@@ -31,7 +31,7 @@ const UserSchema = new Schema<IUser>({
       pincode: '',
     })
   },
-  createdAt: { type: Date, default: Date.now },
+  createdAt: { type: String, default: () => new Date().toISOString() },
 });
 
 // Prevent re-compilation during development
