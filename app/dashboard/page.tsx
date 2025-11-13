@@ -79,36 +79,36 @@ export default function Dashboard() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 w-full">
-        <div className="mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to FarmVeda</h1>
-          <p className="text-lg text-gray-600">Order fresh farm products with ease</p>
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-8 w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to FarmVeda</h1>
+          <p className="text-sm text-gray-600">Order fresh farm products with ease</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-0">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mx-0">
           <div
             onClick={() => router.push('/catalog')}
-            className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-10 cursor-pointer hover:shadow-2xl hover:border-[#3a8735] transition-all group"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-6 cursor-pointer hover:shadow-lg hover:border-[#3a8735] transition-all group"
           >
             <div className="flex flex-col items-start">
-              <div className="w-20 h-20 bg-[#3a8735] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
-                <Package className="w-10 h-10 text-white" />
+              <div className="w-12 h-12 bg-[#3a8735] rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <Package className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">Browse Products</h3>
-              <p className="text-base text-gray-600 leading-relaxed">View and order fresh products from our farm</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">Browse Products</h3>
+              <p className="text-sm text-gray-600">View and order fresh products from our farm</p>
             </div>
           </div>
 
           <div
             onClick={() => router.push('/orders')}
-            className="bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-10 cursor-pointer hover:shadow-2xl hover:border-[#3a8735] transition-all group"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-6 cursor-pointer hover:shadow-lg hover:border-[#3a8735] transition-all group"
           >
             <div className="flex flex-col items-start">
-              <div className="w-20 h-20 bg-[#3a8735] rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform shadow-lg">
-                <ShoppingCart className="w-10 h-10 text-white" />
+              <div className="w-12 h-12 bg-[#3a8735] rounded-lg flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+                <ShoppingCart className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-3">My Orders</h3>
-              <p className="text-base text-gray-600 leading-relaxed">Track your orders and payment status</p>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">My Orders</h3>
+              <p className="text-sm text-gray-600">Track your orders and payment status</p>
             </div>
           </div>
         </div>

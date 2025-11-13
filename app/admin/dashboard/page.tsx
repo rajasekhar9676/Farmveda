@@ -136,166 +136,166 @@ export default function AdminDashboard() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-12 w-full">
+      <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-8 w-full">
         {/* Header Section */}
-        <div style={{ marginBottom: '3rem' }}>
-          <h1 className="text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">Admin Dashboard</h1>
-          <p className="text-xl text-gray-600 font-medium">Manage your orders, products, and business operations</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-sm text-gray-600">Manage your orders, products, and business operations</p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4" style={{ marginBottom: '3rem' }}>
+        <div className="flex flex-wrap gap-3 mb-6">
           <Button 
             onClick={() => router.push('/admin/products')} 
-            className="px-8 py-4 text-base font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+            className="px-5 py-2.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all"
           >
-            <Plus className="w-5 h-5 mr-2 inline" />
+            <Plus className="w-4 h-4 mr-2 inline" />
             Add Product
           </Button>
           <Button 
             onClick={() => router.push('/admin/orders')} 
             variant="secondary" 
-            className="px-8 py-4 text-base font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+            className="px-5 py-2.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all"
           >
-            <ShoppingCart className="w-5 h-5 mr-2 inline" />
+            <ShoppingCart className="w-4 h-4 mr-2 inline" />
             View All Orders
           </Button>
           <Button 
             variant="outline" 
             onClick={exportExcel} 
-            className="px-8 py-4 text-base font-bold border-2 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all"
+            className="px-5 py-2.5 text-sm font-semibold border-2 shadow-md hover:shadow-lg transition-all"
           >
-            <Download className="w-5 h-5 mr-2 inline" />
+            <Download className="w-4 h-4 mr-2 inline" />
             Export Excel
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" style={{ marginBottom: '3rem' }}>
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-8 hover:shadow-2xl hover:border-[#3a8735] transition-all transform hover:scale-105">
-            <div className="flex items-center justify-between" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-16 h-16 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-2xl flex items-center justify-center shadow-lg">
-                <ShoppingCart className="w-8 h-8 text-white" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg hover:border-[#3a8735] transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-lg flex items-center justify-center shadow-md">
+                <ShoppingCart className="w-6 h-6 text-white" />
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Total Orders</p>
-            <p className="text-5xl font-extrabold text-gray-900">{stats.totalOrders}</p>
+            <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Total Orders</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalOrders}</p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-8 hover:shadow-2xl hover:border-yellow-400 transition-all transform hover:scale-105">
-            <div className="flex items-center justify-between" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Clock className="w-8 h-8 text-white" />
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg hover:border-yellow-400 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-lg flex items-center justify-center shadow-md">
+                <Clock className="w-6 h-6 text-white" />
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Pending Orders</p>
-            <p className="text-5xl font-extrabold text-yellow-600">{stats.pendingOrders}</p>
+            <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Pending Orders</p>
+            <p className="text-3xl font-bold text-yellow-600">{stats.pendingOrders}</p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-8 hover:shadow-2xl hover:border-green-400 transition-all transform hover:scale-105">
-            <div className="flex items-center justify-between" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-16 h-16 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg">
-                <Package className="w-8 h-8 text-white" />
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg hover:border-green-400 transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-500 rounded-lg flex items-center justify-center shadow-md">
+                <Package className="w-6 h-6 text-white" />
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Delivered</p>
-            <p className="text-5xl font-extrabold text-green-600">{stats.deliveredOrders}</p>
+            <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Delivered</p>
+            <p className="text-3xl font-bold text-green-600">{stats.deliveredOrders}</p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-8 hover:shadow-2xl hover:border-[#3a8735] transition-all transform hover:scale-105">
-            <div className="flex items-center justify-between" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-16 h-16 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-2xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="w-8 h-8 text-white" />
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg hover:border-[#3a8735] transition-all">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-lg flex items-center justify-center shadow-md">
+                <TrendingUp className="w-6 h-6 text-white" />
               </div>
             </div>
-            <p className="text-sm font-semibold text-gray-600 mb-3 uppercase tracking-wide">Total Revenue</p>
-            <p className="text-5xl font-extrabold text-[#3a8735]">₹{stats.totalRevenue.toFixed(2)}</p>
+            <p className="text-xs font-semibold text-gray-600 mb-2 uppercase tracking-wide">Total Revenue</p>
+            <p className="text-3xl font-bold text-[#3a8735]">₹{stats.totalRevenue.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{ marginBottom: '3rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <div
             onClick={() => router.push('/admin/products')}
-            className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-10 cursor-pointer hover:shadow-2xl hover:border-[#3a8735] transition-all group transform hover:scale-105"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-6 cursor-pointer hover:shadow-lg hover:border-[#3a8735] transition-all group"
           >
-            <div className="flex items-center gap-6" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                <Plus className="w-10 h-10 text-white" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-[#3a8735] to-[#4fa349] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                <Plus className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Manage Products</h3>
-                <p className="text-base text-gray-600">Add, edit, or view products</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Manage Products</h3>
+                <p className="text-sm text-gray-600">Add, edit, or view products</p>
               </div>
             </div>
           </div>
 
           <div
             onClick={() => router.push('/admin/orders')}
-            className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-10 cursor-pointer hover:shadow-2xl hover:border-blue-500 transition-all group transform hover:scale-105"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-6 cursor-pointer hover:shadow-lg hover:border-blue-500 transition-all group"
           >
-            <div className="flex items-center gap-6" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                <ShoppingCart className="w-10 h-10 text-white" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                <ShoppingCart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Manage Orders</h3>
-                <p className="text-base text-gray-600">View and update all orders</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Manage Orders</h3>
+                <p className="text-sm text-gray-600">View and update all orders</p>
               </div>
             </div>
           </div>
 
           <div
             onClick={exportExcel}
-            className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 p-10 cursor-pointer hover:shadow-2xl hover:border-purple-500 transition-all group transform hover:scale-105"
+            className="bg-white rounded-xl shadow-md border border-gray-200 p-6 cursor-pointer hover:shadow-lg hover:border-purple-500 transition-all group"
           >
-            <div className="flex items-center gap-6" style={{ marginBottom: '1.5rem' }}>
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                <Download className="w-10 h-10 text-white" />
+            <div className="flex items-center gap-4 mb-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
+                <Download className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">Export Data</h3>
-                <p className="text-base text-gray-600">Download orders to Excel</p>
+                <h3 className="text-lg font-bold text-gray-900 mb-1">Export Data</h3>
+                <p className="text-sm text-gray-600">Download orders to Excel</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Recent Orders Table */}
-        <div className="bg-white rounded-3xl shadow-xl border-2 border-gray-100 overflow-hidden">
-          <div className="px-10 py-8 border-b-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Recent Orders</h2>
-            <p className="text-base text-gray-600 font-medium">Latest 10 orders from your customers</p>
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <h2 className="text-xl font-bold text-gray-900 mb-1">Recent Orders</h2>
+            <p className="text-sm text-gray-600">Latest 10 orders from your customers</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+              <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Order #</th>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Customer</th>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Amount</th>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Status</th>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Delivery Date</th>
-                  <th className="text-left py-6 px-10 text-sm font-bold text-gray-700 uppercase tracking-wider">Actions</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Order #</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Customer</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Amount</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Status</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Delivery Date</th>
+                  <th className="text-left py-3 px-6 text-xs font-bold text-gray-700 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {orders.slice(0, 10).map(order => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-6 px-10">
-                      <span className="font-bold text-gray-900 text-base">{order.orderNumber}</span>
+                    <td className="py-3 px-6">
+                      <span className="font-semibold text-gray-900 text-sm">{order.orderNumber}</span>
                     </td>
-                    <td className="py-6 px-10">
+                    <td className="py-3 px-6">
                       <div>
-                        <div className="font-bold text-gray-900 text-base">{order.customerName}</div>
-                        <div className="text-sm text-gray-500 mt-1">{order.customerMobile}</div>
+                        <div className="font-semibold text-gray-900 text-sm">{order.customerName}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">{order.customerMobile}</div>
                       </div>
                     </td>
-                    <td className="py-6 px-10">
-                      <span className="font-extrabold text-xl text-gray-900">₹{order.totalAmount.toFixed(2)}</span>
+                    <td className="py-3 px-6">
+                      <span className="font-bold text-base text-gray-900">₹{order.totalAmount.toFixed(2)}</span>
                     </td>
-                    <td className="py-6 px-10">
-                      <span className={`inline-flex px-5 py-2.5 rounded-xl text-xs font-bold border-2 shadow-md ${
+                    <td className="py-3 px-6">
+                      <span className={`inline-flex px-3 py-1 rounded-lg text-xs font-semibold border ${
                         order.status === 'paid' ? 'bg-[#3a8735] text-white border-[#2d6a29]' :
                         order.status === 'delivered' ? 'bg-green-100 text-green-800 border-green-300' :
                         order.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border-yellow-300' :
@@ -305,12 +305,12 @@ export default function AdminDashboard() {
                         {order.status.replace('_', ' ').toUpperCase()}
                       </span>
                     </td>
-                    <td className="py-6 px-10 text-base text-gray-600 font-medium">{new Date(order.deliveryDate).toLocaleDateString()}</td>
-                    <td className="py-6 px-10">
+                    <td className="py-3 px-6 text-sm text-gray-600">{new Date(order.deliveryDate).toLocaleDateString()}</td>
+                    <td className="py-3 px-6">
                       <Button
                         variant="outline"
                         onClick={() => router.push(`/admin/orders/${order.id}`)}
-                        className="text-sm px-5 py-2.5 font-bold border-2"
+                        className="text-xs px-3 py-1.5 font-semibold border"
                       >
                         View Details
                       </Button>
@@ -321,15 +321,15 @@ export default function AdminDashboard() {
             </table>
           </div>
           {orders.length === 0 && (
-            <div className="text-center py-20">
-              <Package className="w-20 h-20 text-gray-400 mx-auto mb-6" />
-              <p className="text-gray-600 text-xl font-semibold mb-2">No orders yet.</p>
-              <p className="text-gray-500 text-base">Orders will appear here once customers start placing them.</p>
+            <div className="text-center py-12">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 text-base font-semibold mb-1">No orders yet.</p>
+              <p className="text-gray-500 text-sm">Orders will appear here once customers start placing them.</p>
             </div>
           )}
           {orders.length > 10 && (
-            <div className="px-10 py-8 border-t-2 border-gray-200 bg-gradient-to-r from-gray-50 to-white text-center">
-              <Button variant="outline" onClick={() => router.push('/admin/orders')} className="px-8 py-4 text-base font-bold border-2">
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 text-center">
+              <Button variant="outline" onClick={() => router.push('/admin/orders')} className="px-5 py-2 text-sm font-semibold border">
                 View All Orders ({orders.length})
               </Button>
             </div>
