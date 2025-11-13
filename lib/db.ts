@@ -24,7 +24,7 @@ export async function readUsers(): Promise<User[]> {
   await connectDB();
   const users = await UserModel.find({}).lean();
   return users.map(user => ({
-    id: user._id.toString(),
+    id: (user._id as any).toString(),
     name: user.name,
     mobile: user.mobile,
     email: user.email || '',
@@ -68,7 +68,7 @@ export async function createUser(userData: Omit<User, 'id' | 'createdAt'>): Prom
     const user = new UserModel(userDataWithDefaults);
     await user.save();
     return {
-      id: user._id.toString(),
+      id: (user._id as any).toString(),
       name: user.name,
       mobile: user.mobile,
       email: user.email || '',
@@ -98,7 +98,7 @@ export async function findUserByMobile(mobile: string): Promise<User | null> {
   const user = await UserModel.findOne({ mobile }).lean();
   if (!user) return null;
   return {
-    id: user._id.toString(),
+    id: (user._id as any).toString(),
     name: user.name,
     mobile: user.mobile,
     email: user.email || '',
@@ -114,7 +114,7 @@ export async function findUserById(id: string): Promise<User | null> {
   const user = await UserModel.findById(id).lean();
   if (!user) return null;
   return {
-    id: user._id.toString(),
+    id: (user._id as any).toString(),
     name: user.name,
     mobile: user.mobile,
     email: user.email || '',
@@ -130,7 +130,7 @@ export async function updateUser(id: string, updates: Partial<User>): Promise<Us
   const user = await UserModel.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
   if (!user) return null;
   return {
-    id: user._id.toString(),
+    id: (user._id as any).toString(),
     name: user.name,
     mobile: user.mobile,
     email: user.email || '',
@@ -146,7 +146,7 @@ export async function readProducts(): Promise<Product[]> {
   await connectDB();
   const products = await ProductModel.find({}).lean();
   return products.map(product => ({
-    id: product._id.toString(),
+    id: (product._id as any).toString(),
     name: product.name,
     price: product.price,
     quantity: product.quantity,
@@ -163,7 +163,7 @@ export async function createProduct(productData: Omit<Product, 'id' | 'createdAt
   const product = new ProductModel(productData);
   await product.save();
   return {
-    id: product._id.toString(),
+    id: (product._id as any).toString(),
     name: product.name,
     price: product.price,
     quantity: product.quantity,
@@ -180,7 +180,7 @@ export async function updateProduct(id: string, updates: Partial<Product>): Prom
   const product = await ProductModel.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
   if (!product) return null;
   return {
-    id: product._id.toString(),
+    id: (product._id as any).toString(),
     name: product.name,
     price: product.price,
     quantity: product.quantity,
@@ -197,7 +197,7 @@ export async function findProductById(id: string): Promise<Product | null> {
   const product = await ProductModel.findById(id).lean();
   if (!product) return null;
   return {
-    id: product._id.toString(),
+    id: (product._id as any).toString(),
     name: product.name,
     price: product.price,
     quantity: product.quantity,
@@ -214,7 +214,7 @@ export async function readOrders(): Promise<Order[]> {
   await connectDB();
   const orders = await OrderModel.find({}).sort({ createdAt: -1 }).lean();
   return orders.map(order => ({
-    id: order._id.toString(),
+    id: (order._id as any).toString(),
     orderNumber: order.orderNumber,
     customerId: order.customerId,
     customerName: order.customerName,
@@ -237,7 +237,7 @@ export async function createOrder(orderData: Omit<Order, 'id' | 'createdAt'>): P
   const order = new OrderModel(orderData);
   await order.save();
   return {
-    id: order._id.toString(),
+    id: (order._id as any).toString(),
     orderNumber: order.orderNumber,
     customerId: order.customerId,
     customerName: order.customerName,
@@ -260,7 +260,7 @@ export async function updateOrder(id: string, updates: Partial<Order>): Promise<
   const order = await OrderModel.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
   if (!order) return null;
   return {
-    id: order._id.toString(),
+    id: (order._id as any).toString(),
     orderNumber: order.orderNumber,
     customerId: order.customerId,
     customerName: order.customerName,
@@ -283,7 +283,7 @@ export async function findOrderById(id: string): Promise<Order | null> {
   const order = await OrderModel.findById(id).lean();
   if (!order) return null;
   return {
-    id: order._id.toString(),
+    id: (order._id as any).toString(),
     orderNumber: order.orderNumber,
     customerId: order.customerId,
     customerName: order.customerName,
@@ -335,7 +335,7 @@ export async function readDeliveries(): Promise<Delivery[]> {
   await connectDB();
   const deliveries = await DeliveryModel.find({}).sort({ deliveryDate: 1 }).lean();
   return deliveries.map(delivery => ({
-    id: delivery._id.toString(),
+    id: (delivery._id as any).toString(),
     deliveryDate: delivery.deliveryDate,
     products: delivery.products,
     status: delivery.status,
@@ -347,7 +347,7 @@ export async function createDelivery(deliveryData: Omit<Delivery, 'id' | 'create
   await connectDB();
   const delivery = await DeliveryModel.create(deliveryData);
   return {
-    id: delivery._id.toString(),
+    id: (delivery._id as any).toString(),
     deliveryDate: delivery.deliveryDate,
     products: delivery.products,
     status: delivery.status,
@@ -360,7 +360,7 @@ export async function updateDelivery(id: string, updates: Partial<Delivery>): Pr
   const delivery = await DeliveryModel.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
   if (!delivery) return null;
   return {
-    id: delivery._id.toString(),
+    id: (delivery._id as any).toString(),
     deliveryDate: delivery.deliveryDate,
     products: delivery.products,
     status: delivery.status,
@@ -373,7 +373,7 @@ export async function findDeliveryById(id: string): Promise<Delivery | null> {
   const delivery = await DeliveryModel.findById(id).lean();
   if (!delivery) return null;
   return {
-    id: delivery._id.toString(),
+    id: (delivery._id as any).toString(),
     deliveryDate: delivery.deliveryDate,
     products: delivery.products,
     status: delivery.status,
@@ -386,7 +386,7 @@ export async function findDeliveryByDate(deliveryDate: string): Promise<Delivery
   const delivery = await DeliveryModel.findOne({ deliveryDate, status: 'active' }).lean();
   if (!delivery) return null;
   return {
-    id: delivery._id.toString(),
+    id: (delivery._id as any).toString(),
     deliveryDate: delivery.deliveryDate,
     products: delivery.products,
     status: delivery.status,
