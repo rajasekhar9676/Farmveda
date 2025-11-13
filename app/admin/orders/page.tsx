@@ -13,20 +13,31 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('all');
+  const [deliveryDateFilter, setDeliveryDateFilter] = useState<string>('');
   const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
   const [bulkLoading, setBulkLoading] = useState(false);
-
-  useEffect(() => {
-    loadOrders();
-  }, []);
+  const [showAggregated, setShowAggregated] = useState(false);
+  const [aggregatedData, setAggregatedData] = useState<any[]>([]);
 
   const loadOrders = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/orders', { credentials: 'include' });
+      const params = new URLSearchParams();
+      if (deliveryDateFilter) {
+        params.append('deliveryDate', deliveryDateFilter);
+      }
+      if (showAggregated) {
+        params.append('aggregate', 'true');
+      }
+      
+      const url = `/api/orders${params.toString() ? '?' + params.toString() : ''}`;
+      const res = await fetch(url, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setOrders(data.orders || []);
+        if (data.aggregated) {
+          setAggregatedData(data.aggregated || []);
+        }
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -34,6 +45,10 @@ export default function OrdersPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadOrders();
+  }, [deliveryDateFilter, showAggregated]);
 
   const filteredOrders = filter === 'all'
     ? orders
@@ -145,28 +160,87 @@ export default function OrdersPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10 w-full">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">All Orders</h1>
-          <p className="text-lg text-gray-600">Manage and track all customer orders</p>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">All Orders</h1>
+          <p className="text-sm text-gray-600">Manage and track all customer orders by delivery batches</p>
         </div>
 
         {/* Filter and Actions */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="flex items-center gap-4">
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="px-5 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] text-base font-medium bg-white text-gray-900"
-            >
-              <option value="all">All Orders</option>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="out_for_delivery">Out for Delivery</option>
-              <option value="delivered">Delivered</option>
-              <option value="paid">Paid</option>
-            </select>
-            <div className="text-sm text-gray-700 font-semibold">
-              <span>{filteredOrders.length}</span> order(s) found
+        <div className="mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="px-5 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] text-base font-medium bg-white text-gray-900"
+              >
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="out_for_delivery">Out for Delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="paid">Paid</option>
+              </select>
+              
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Filter by Delivery Date</label>
+                <input
+                  type="date"
+                  value={deliveryDateFilter}
+                  onChange={(e) => setDeliveryDateFilter(e.target.value)}
+                  className="px-5 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] text-base font-medium bg-white text-gray-900"
+                />
+                {deliveryDateFilter && (
+                  <button
+                    onClick={() => setDeliveryDateFilter('')}
+                    className="ml-2 text-sm text-[#3a8735] hover:underline"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="showAggregated"
+                  checked={showAggregated}
+                  onChange={(e) => setShowAggregated(e.target.checked)}
+                  className="w-5 h-5 text-[#3a8735] border-gray-300 rounded focus:ring-[#3a8735]"
+                />
+                <label htmlFor="showAggregated" className="text-sm font-semibold text-gray-700">
+                  Show Aggregated View
+                </label>
+              </div>
+
+              <div className="text-sm text-gray-700 font-semibold">
+                <span>{filteredOrders.length}</span> order(s) found
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (deliveryDateFilter) params.append('deliveryDate', deliveryDateFilter);
+                  params.append('groupByDate', 'true');
+                  window.open(`/api/orders/export?${params.toString()}`, '_blank');
+                }}
+                className="px-5 py-2.5 text-sm font-semibold"
+              >
+                Export Excel (Grouped)
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (deliveryDateFilter) params.append('deliveryDate', deliveryDateFilter);
+                  window.open(`/api/orders/export?${params.toString()}`, '_blank');
+                }}
+                className="px-5 py-2.5 text-sm font-semibold border-2"
+              >
+                Export Excel
+              </Button>
             </div>
           </div>
         </div>
@@ -225,6 +299,51 @@ export default function OrdersPage() {
                 </Button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Aggregated View */}
+        {showAggregated && aggregatedData.length > 0 && (
+          <div className="mb-8 space-y-6">
+            {aggregatedData.map((group) => (
+              <div key={group.date} className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+                <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-[#3a8735] to-[#4fa349] text-white">
+                  <h2 className="text-2xl font-bold mb-2">Delivery Date: {new Date(group.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</h2>
+                  <div className="flex gap-6 text-sm">
+                    <span>Total Orders: <strong>{group.totalOrders}</strong></span>
+                    <span>Unique Customers: <strong>{group.uniqueCustomers}</strong></span>
+                    <span>Total Amount: <strong>₹{group.totalAmount.toFixed(2)}</strong></span>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">Product Summary</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50 border-b-2 border-gray-200">
+                        <tr>
+                          <th className="text-left py-3 px-6 text-sm font-bold text-gray-700 uppercase">Product</th>
+                          <th className="text-left py-3 px-6 text-sm font-bold text-gray-700 uppercase">Unit</th>
+                          <th className="text-left py-3 px-6 text-sm font-bold text-gray-700 uppercase">Total Quantity</th>
+                          <th className="text-left py-3 px-6 text-sm font-bold text-gray-700 uppercase">Total Amount</th>
+                          <th className="text-left py-3 px-6 text-sm font-bold text-gray-700 uppercase">Order Count</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {group.products.map((product: any, idx: number) => (
+                          <tr key={idx} className="hover:bg-gray-50">
+                            <td className="py-3 px-6 font-semibold text-gray-900">{product.productName}</td>
+                            <td className="py-3 px-6 text-gray-600 capitalize">{product.unit}</td>
+                            <td className="py-3 px-6 font-bold text-gray-900">{product.totalQuantity}</td>
+                            <td className="py-3 px-6 font-bold text-[#3a8735]">₹{product.totalAmount.toFixed(2)}</td>
+                            <td className="py-3 px-6 text-gray-600">{product.orderCount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

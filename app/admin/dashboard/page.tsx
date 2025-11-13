@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import Button from '@/components/Button';
-import { LogOut, Package, ShoppingCart, Download, Plus, TrendingUp, Clock } from 'lucide-react';
+import { LogOut, Package, ShoppingCart, Download, Plus, TrendingUp, Clock, Calendar } from 'lucide-react';
 import { getAuthToken, removeAuthToken } from '@/lib/client-auth';
 import { Order } from '@/lib/types';
 
@@ -145,6 +145,13 @@ export default function AdminDashboard() {
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-3 mb-6">
+          <Button 
+            onClick={() => router.push('/admin/deliveries')} 
+            className="px-5 py-2.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all"
+          >
+            <Calendar className="w-4 h-4 mr-2 inline" />
+            Delivery Schedule
+          </Button>
           <Button 
             onClick={() => router.push('/admin/products')} 
             className="px-5 py-2.5 text-sm font-semibold shadow-md hover:shadow-lg transition-all"

@@ -1,11 +1,18 @@
+import Image from 'next/image';
+
 export default function Logo({ className = '' }: { className?: string }) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      <div className="w-10 h-10 bg-[#3a8735] rounded-lg flex items-center justify-center">
-        <span className="text-white font-bold text-xl">FV</span>
-      </div>
-      <span className="text-2xl font-bold text-[#3a8735]">FarmVeda</span>
+    <div className={`flex items-center ${className}`}>
+      <Image
+        src="/Farmveda_Logo.avif"
+        alt="FarmVeda Logo"
+        width={180}
+        height={60}
+        className="h-auto w-auto object-contain"
+        priority
+      />
     </div>
   );
 }
+
 

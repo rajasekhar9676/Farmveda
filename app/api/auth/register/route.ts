@@ -6,11 +6,11 @@ import { Address } from '@/lib/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, mobile, password, address } = await request.json();
+    const { name, mobile, email, password, address } = await request.json();
 
-    if (!name || !mobile || !password) {
+    if (!name || !mobile || !email || !password) {
       return NextResponse.json(
-        { error: 'Name, mobile, and password are required' },
+        { error: 'Name, mobile, email, and password are required' },
         { status: 400 }
       );
     }
@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     const newUser = await createUser({
       name,
       mobile,
+      email: email || '',
       password: hashedPassword,
       role: 'customer',
       address: address as Address,

@@ -10,6 +10,7 @@ export default function Home() {
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [communityOrApartment, setCommunityOrApartment] = useState('');
   const [roomNo, setRoomNo] = useState('');
   const [loading, setLoading] = useState(false);
@@ -50,8 +51,8 @@ export default function Home() {
     setLoading(true);
     setError('');
 
-    if (!name || !mobile || !password) {
-      setError('Name, mobile, and password are required');
+    if (!name || !mobile || !password || !email) {
+      setError('Name, mobile, email, and password are required');
       setLoading(false);
       return;
     }
@@ -69,7 +70,7 @@ export default function Home() {
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, mobile, password, address }),
+        body: JSON.stringify({ name, mobile, email, password, address }),
         credentials: 'include',
       });
 
@@ -146,6 +147,24 @@ export default function Home() {
                   className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] transition-all bg-white text-gray-900 placeholder-gray-400"
                 />
               </div>
+
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email Address *
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="your.email@example.com"
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] transition-all bg-white text-gray-900 placeholder-gray-400"
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <label htmlFor="password" className="text-sm font-medium text-gray-700">
@@ -242,6 +261,7 @@ export default function Home() {
                     setMobile('');
                     setPassword('');
                     setName('');
+                    setEmail('');
                     setCommunityOrApartment('');
                     setRoomNo('');
                   }}

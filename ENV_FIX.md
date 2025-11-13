@@ -42,3 +42,4 @@ NEXT_PUBLIC_BASE_URL=http://localhost:3001
 
 - `?Cluster0` is not a valid MongoDB connection parameter and will cause connection errors.
 
+

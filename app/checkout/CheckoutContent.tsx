@@ -7,7 +7,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { ArrowLeft } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
-import { Product, Address } from '@/lib/types';
+import { Product, Address, Delivery } from '@/lib/types';
 
 interface CheckoutContentProps {
   deliveryDate: string;
@@ -17,9 +17,11 @@ export default function CheckoutContent({ deliveryDate }: CheckoutContentProps) 
   const router = useRouter();
   const [cart, setCart] = useState<{ productId: string; quantity: number }[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [delivery, setDelivery] = useState<Delivery | null>(null);
+  const [savedAddress, setSavedAddress] = useState<Address | null>(null);
   const [communityOrApartment, setCommunityOrApartment] = useState('');
   const [roomNo, setRoomNo] = useState('');
-  const [useSavedAddress, setUseSavedAddress] = useState(true);
+  const [addressOption, setAddressOption] = useState<'saved' | 'new'>('saved');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,9 +40,32 @@ export default function CheckoutContent({ deliveryDate }: CheckoutContentProps) 
 
   const loadProducts = async () => {
     try {
-      const res = await fetch(`/api/products?date=${deliveryDate}&role=customer`);
-      const data = await res.json();
-      setProducts(data.products || []);
+      // Try to load from deliveries first
+      const deliveryRes = await fetch(`/api/deliveries?deliveryDate=${deliveryDate}&role=customer`);
+      const deliveryData = await deliveryRes.json();
+      
+      if (deliveryData.deliveries && deliveryData.deliveries.length > 0) {
+        const delivery = deliveryData.deliveries[0];
+        setDelivery(delivery);
+        // Convert delivery products to Product format for compatibility
+        const deliveryProducts = delivery.products.map((p: any) => ({
+          id: p.productId,
+          name: p.productName,
+          price: p.price,
+          quantity: p.quantity,
+          unit: p.unit,
+          description: p.description,
+          image: p.image,
+          availableDate: delivery.deliveryDate,
+          createdAt: '',
+        }));
+        setProducts(deliveryProducts);
+      } else {
+        // Fallback to products API
+        const res = await fetch(`/api/products?date=${deliveryDate}&role=customer`);
+        const data = await res.json();
+        setProducts(data.products || []);
+      }
     } catch (error) {
       console.error('Error loading products:', error);
     }
@@ -53,12 +78,21 @@ export default function CheckoutContent({ deliveryDate }: CheckoutContentProps) 
         const data = await res.json();
         if (data.user?.address) {
           const addr = data.user.address;
-          setCommunityOrApartment(addr.communityName || addr.apartmentName || '');
-          setRoomNo(addr.roomNo || '');
+          setSavedAddress(addr);
+          if (addr.communityName || addr.apartmentName) {
+            setCommunityOrApartment(addr.communityName || addr.apartmentName || '');
+            setRoomNo(addr.roomNo || '');
+            setAddressOption('saved');
+          } else {
+            setAddressOption('new');
+          }
+        } else {
+          setAddressOption('new');
         }
       }
     } catch (error) {
       console.error('Error loading address:', error);
+      setAddressOption('new');
     }
   };
 
@@ -80,14 +114,20 @@ export default function CheckoutContent({ deliveryDate }: CheckoutContentProps) 
       return;
     }
 
-    const address: Address = {
-      communityName: communityOrApartment || '',
-      apartmentName: communityOrApartment || '',
-      roomNo: roomNo || '',
-      street: '',
-      city: '',
-      pincode: '',
-    };
+    let address: Address;
+    
+    if (addressOption === 'saved' && savedAddress) {
+      address = savedAddress;
+    } else {
+      address = {
+        communityName: communityOrApartment || '',
+        apartmentName: communityOrApartment || '',
+        roomNo: roomNo || '',
+        street: '',
+        city: '',
+        pincode: '',
+      };
+    }
 
     try {
       const res = await fetch('/api/orders', {
@@ -135,52 +175,97 @@ export default function CheckoutContent({ deliveryDate }: CheckoutContentProps) 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Delivery Address</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-6">Select Delivery Address</h2>
               
-              {communityOrApartment && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-green-800">Saved Address</p>
-                      <p className="text-sm text-green-700 mt-1">
-                        {communityOrApartment} {roomNo && `- Room ${roomNo}`}
-                      </p>
+              <form onSubmit={handlePlaceOrder} className="space-y-6">
+                {/* Saved Address Option */}
+                {savedAddress && (savedAddress.communityName || savedAddress.apartmentName) && (
+                  <div className="border-2 rounded-xl p-4 cursor-pointer transition-all"
+                    style={{
+                      borderColor: addressOption === 'saved' ? '#3a8735' : '#e5e7eb',
+                      backgroundColor: addressOption === 'saved' ? '#f0fdf4' : 'white'
+                    }}
+                    onClick={() => setAddressOption('saved')}
+                  >
+                    <div className="flex items-start gap-3">
+                      <input
+                        type="radio"
+                        name="address"
+                        checked={addressOption === 'saved'}
+                        onChange={() => setAddressOption('saved')}
+                        className="mt-1 w-4 h-4 text-[#3a8735] border-gray-300 focus:ring-[#3a8735] cursor-pointer"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-semibold text-gray-900">Saved Address</span>
+                          {addressOption === 'saved' && (
+                            <span className="text-xs font-semibold text-[#3a8735] bg-green-100 px-2 py-1 rounded">Selected</span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-700">
+                          <p>{savedAddress.communityName || savedAddress.apartmentName}</p>
+                          {savedAddress.roomNo && <p className="mt-1">Room No: {savedAddress.roomNo}</p>}
+                        </div>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setUseSavedAddress(!useSavedAddress)}
-                      className="text-sm text-[#3a8735] hover:underline font-medium"
-                    >
-                      {useSavedAddress ? 'Edit' : 'Use Saved'}
-                    </button>
                   </div>
-                </div>
-              )}
-
-              <form onSubmit={handlePlaceOrder} className="space-y-5">
-                {(!useSavedAddress || !communityOrApartment) && (
-                  <>
-                    <div>
-                      <Input
-                        label="Community or Apartment Name"
-                        type="text"
-                        value={communityOrApartment}
-                        onChange={(e) => setCommunityOrApartment(e.target.value)}
-                        placeholder="Enter community or apartment name"
-                      />
-                    </div>
-
-                    <div>
-                      <Input
-                        label="Room No"
-                        type="text"
-                        value={roomNo}
-                        onChange={(e) => setRoomNo(e.target.value)}
-                        placeholder="Enter room number"
-                      />
-                    </div>
-                  </>
                 )}
+
+                {/* New Address Option */}
+                <div className="border-2 rounded-xl p-4 cursor-pointer transition-all"
+                  style={{
+                    borderColor: addressOption === 'new' ? '#3a8735' : '#e5e7eb',
+                    backgroundColor: addressOption === 'new' ? '#f0fdf4' : 'white'
+                  }}
+                  onClick={() => setAddressOption('new')}
+                >
+                  <div className="flex items-start gap-3 mb-4">
+                    <input
+                      type="radio"
+                      name="address"
+                      checked={addressOption === 'new'}
+                      onChange={() => setAddressOption('new')}
+                      className="mt-1 w-4 h-4 text-[#3a8735] border-gray-300 focus:ring-[#3a8735] cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold text-gray-900">Add New Address</span>
+                        {addressOption === 'new' && (
+                          <span className="text-xs font-semibold text-[#3a8735] bg-green-100 px-2 py-1 rounded">Selected</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {addressOption === 'new' && (
+                    <div className="space-y-4 pl-7">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Community or Apartment Name
+                        </label>
+                        <input
+                          type="text"
+                          value={communityOrApartment}
+                          onChange={(e) => setCommunityOrApartment(e.target.value)}
+                          placeholder="Enter community or apartment name"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] bg-white text-gray-900"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Room No
+                        </label>
+                        <input
+                          type="text"
+                          value={roomNo}
+                          onChange={(e) => setRoomNo(e.target.value)}
+                          placeholder="Enter room number"
+                          className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] bg-white text-gray-900"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {error && (
                   <div className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-lg">

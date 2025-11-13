@@ -4,21 +4,20 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Logo from '@/components/Logo';
 import Button from '@/components/Button';
-import { Product } from '@/lib/types';
+import { Delivery, DeliveryItem } from '@/lib/types';
 import { ShoppingCart, ArrowLeft, Image as ImageIcon, Plus, Minus, Calendar, Package } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 export default function Catalog() {
   const router = useRouter();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [deliveries, setDeliveries] = useState<Delivery[]>([]);
+  const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [cart, setCart] = useState<{ productId: string; quantity: number }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const today = new Date().toISOString().split('T')[0];
-    setSelectedDate(today);
-    loadProducts(today);
+    loadDeliveries();
     
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -39,16 +38,21 @@ export default function Catalog() {
     }
   }, [cart]);
 
-  const loadProducts = async (date: string) => {
-    if (!date) return;
-    
+  const loadDeliveries = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/products?date=${date}&role=customer`);
+      const res = await fetch('/api/deliveries?role=customer');
       const data = await res.json();
-      setProducts(data.products || []);
+      setDeliveries(data.deliveries || []);
+      
+      // Auto-select first available delivery
+      if (data.deliveries && data.deliveries.length > 0) {
+        const firstDelivery = data.deliveries[0];
+        setSelectedDelivery(firstDelivery);
+        setSelectedDate(firstDelivery.deliveryDate);
+      }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('Error loading deliveries:', error);
     } finally {
       setLoading(false);
     }
@@ -57,13 +61,18 @@ export default function Catalog() {
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const date = e.target.value;
     setSelectedDate(date);
-    // Clear cart when date changes since products are different
+    
+    // Find delivery for selected date
+    const delivery = deliveries.find(d => d.deliveryDate === date);
+    setSelectedDelivery(delivery || null);
+    
+    // Clear cart when date changes
     setCart([]);
     localStorage.removeItem('cart');
-    loadProducts(date);
   };
 
   const addToCart = (productId: string) => {
+    if (!selectedDelivery) return;
     const existing = cart.find(item => item.productId === productId);
     if (existing) {
       setCart(cart.map(item =>
@@ -80,11 +89,9 @@ export default function Catalog() {
     if (quantity <= 0) {
       setCart(cart.filter(item => item.productId !== productId));
     } else {
-      const product = products.find(p => p.id === productId);
-      const maxQuantity = product ? product.quantity : 0;
-      const finalQuantity = Math.min(quantity, maxQuantity);
+      // Allow any quantity - no restrictions
       setCart(cart.map(item =>
-        item.productId === productId ? { ...item, quantity: finalQuantity } : item
+        item.productId === productId ? { ...item, quantity: quantity } : item
       ));
     }
   };
@@ -94,23 +101,22 @@ export default function Catalog() {
     if (quantity <= 0) {
       setCart(cart.filter(item => item.productId !== productId));
     } else {
-      const product = products.find(p => p.id === productId);
-      const maxQuantity = product ? product.quantity : 0;
-      const finalQuantity = Math.min(quantity, maxQuantity);
-      updateCartQuantity(productId, finalQuantity);
+      // Allow any quantity - no restrictions
+      updateCartQuantity(productId, quantity);
     }
   };
 
   const getCartTotal = () => {
+    if (!selectedDelivery) return 0;
     return cart.reduce((total, item) => {
-      const product = products.find(p => p.id === item.productId);
+      const product = selectedDelivery.products.find(p => p.productId === item.productId);
       return total + (product ? product.price * item.quantity : 0);
     }, 0);
   };
 
   const handleCheckout = () => {
     if (cart.length === 0) return;
-    if (!selectedDate) {
+    if (!selectedDate || !selectedDelivery) {
       alert('Please select a delivery date');
       return;
     }
@@ -143,67 +149,84 @@ export default function Catalog() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Date Selection */}
+        {/* Upcoming Deliveries */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-8">
           <div className="flex items-center gap-4 mb-4">
             <Calendar className="w-6 h-6 text-[#3a8735]" />
-            <h2 className="text-xl font-bold text-gray-900">Select Delivery Date</h2>
+            <h2 className="text-xl font-bold text-gray-900">Upcoming Deliveries</h2>
           </div>
           <p className="text-sm text-gray-600 mb-4">
-            Choose the date when you want your order to be delivered. Only products available for that date will be shown.
+            Select a delivery date to view and order products available for that delivery.
           </p>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-3">
-              Delivery Date *
-            </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              min={new Date().toISOString().split('T')[0]}
-              className="px-5 py-4 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735] transition-all bg-white text-gray-900 text-lg font-medium"
-            />
-            {selectedDate && (
-              <p className="text-sm text-gray-600 mt-3">
-                Showing products available for delivery on <span className="font-semibold text-[#3a8735]">{new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
-              </p>
-            )}
-          </div>
+          {deliveries.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {deliveries.map(delivery => (
+                <button
+                  key={delivery.id}
+                  onClick={() => {
+                    setSelectedDate(delivery.deliveryDate);
+                    setSelectedDelivery(delivery);
+                    setCart([]);
+                    localStorage.removeItem('cart');
+                  }}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                    selectedDelivery?.id === delivery.id
+                      ? 'border-[#3a8735] bg-green-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="font-bold text-gray-900 mb-1">
+                    {new Date(delivery.deliveryDate).toLocaleDateString('en-US', {
+                      weekday: 'short',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {delivery.products.length} product(s) available
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <p className="text-gray-600 text-sm">No upcoming deliveries scheduled.</p>
+            </div>
+          )}
         </div>
 
         {/* Products Grid */}
         {loading ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-md">
-            <div className="text-[#3a8735] text-xl font-semibold">Loading products...</div>
+            <div className="text-[#3a8735] text-xl font-semibold">Loading...</div>
           </div>
-        ) : !selectedDate ? (
+        ) : !selectedDelivery ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-md">
             <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <p className="text-gray-600 text-lg font-medium">Please select a delivery date</p>
-            <p className="text-sm text-gray-500 mt-2">Choose a date above to see available products</p>
+            <p className="text-sm text-gray-500 mt-2">Choose a delivery from above to see available products</p>
           </div>
-        ) : products.length === 0 ? (
+        ) : selectedDelivery.products.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-xl shadow-md">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg font-medium">No products available for this date</p>
-            <p className="text-sm text-gray-500 mt-2">Admin has not posted products for {new Date(selectedDate).toLocaleDateString()}. Please check back later or select a different date.</p>
+            <p className="text-gray-600 text-lg font-medium">No products in this delivery</p>
           </div>
         ) : (
           <>
             <div className="mb-6">
               <p className="text-lg font-semibold text-gray-700">
-                {products.length} product{products.length !== 1 ? 's' : ''} available for delivery on {new Date(selectedDate).toLocaleDateString()}
+                {selectedDelivery.products.length} product{selectedDelivery.products.length !== 1 ? 's' : ''} available for delivery on {new Date(selectedDelivery.deliveryDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map(product => {
-                const cartItem = cart.find(item => item.productId === product.id);
-                const maxQuantity = product.quantity;
+              {selectedDelivery.products.map((product, idx) => {
+                const cartItem = cart.find(item => item.productId === product.productId);
                 return (
-                  <div key={product.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
+                  <div key={idx} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
                     {product.image ? (
                       <div className="w-full h-48 bg-gray-100 overflow-hidden">
-                        <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                        <img src={product.image} alt={product.productName} className="w-full h-full object-cover" />
                       </div>
                     ) : (
                       <div className="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -212,22 +235,19 @@ export default function Catalog() {
                     )}
                     
                     <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">{product.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">{product.productName}</h3>
                       {product.description && (
                         <p className="text-sm text-gray-500 mb-3">{product.description}</p>
                       )}
                       <p className="text-2xl font-bold text-[#3a8735] mb-3">
                         {formatCurrency(product.price)} / {product.unit}
                       </p>
-                      <p className="text-sm text-gray-600 mb-4">
-                        Available: <span className="font-semibold">{product.quantity} {product.unit}</span>
-                      </p>
 
                       {cartItem ? (
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
                             <button
-                              onClick={() => updateCartQuantity(product.id, cartItem.quantity - 1)}
+                              onClick={() => updateCartQuantity(product.productId, cartItem.quantity - 1)}
                               className="w-10 h-10 rounded-xl bg-gray-200 hover:bg-gray-300 flex items-center justify-center font-bold text-lg transition-colors"
                             >
                               <Minus className="w-5 h-5" />
@@ -235,27 +255,21 @@ export default function Catalog() {
                             <input
                               type="number"
                               min="1"
-                              max={maxQuantity}
                               value={cartItem.quantity}
-                              onChange={(e) => handleQuantityInput(product.id, e.target.value)}
+                              onChange={(e) => handleQuantityInput(product.productId, e.target.value)}
                               className="flex-1 text-center font-semibold text-lg px-3 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3a8735] focus:border-[#3a8735]"
                             />
                             <button
-                              onClick={() => updateCartQuantity(product.id, cartItem.quantity + 1)}
-                              disabled={cartItem.quantity >= maxQuantity}
-                              className="w-10 h-10 rounded-xl bg-[#3a8735] text-white hover:bg-[#2d6a29] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold text-lg transition-colors"
+                              onClick={() => updateCartQuantity(product.productId, cartItem.quantity + 1)}
+                              className="w-10 h-10 rounded-xl bg-[#3a8735] text-white hover:bg-[#2d6a29] flex items-center justify-center font-bold text-lg transition-colors"
                             >
                               <Plus className="w-5 h-5" />
                             </button>
                           </div>
-                          <p className="text-xs text-gray-500 text-center">
-                            Max: {maxQuantity} {product.unit}
-                          </p>
                         </div>
                       ) : (
                         <Button
-                          onClick={() => addToCart(product.id)}
-                          disabled={product.quantity === 0}
+                          onClick={() => addToCart(product.productId)}
                           className="w-full"
                         >
                           Add to Cart

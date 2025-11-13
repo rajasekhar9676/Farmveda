@@ -63,3 +63,21 @@ export interface Order {
   createdAt: string;
 }
 
+export interface DeliveryItem {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  unit: ProductUnit;
+  description?: string;
+  image?: string;
+}
+
+export interface Delivery {
+  id: string;
+  deliveryDate: string;
+  products: DeliveryItem[];
+  status: 'active' | 'completed' | 'cancelled';
+  createdAt: string;
+}
+

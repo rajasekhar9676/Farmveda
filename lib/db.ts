@@ -2,7 +2,8 @@ import connectDB from './mongodb';
 import UserModel from '@/models/User';
 import ProductModel from '@/models/Product';
 import OrderModel from '@/models/Order';
-import { User, Product, Order } from './types';
+import DeliveryModel from '@/models/Delivery';
+import { User, Product, Order, Delivery } from './types';
 import bcrypt from 'bcryptjs';
 
 // Helper function to convert date to ISO string
@@ -327,4 +328,74 @@ export async function initDefaultAdmin() {
     console.error('❌ Error creating admin user:', error.message);
     throw error;
   }
+}
+
+// Delivery functions
+export async function readDeliveries(): Promise<Delivery[]> {
+  await connectDB();
+  const deliveries = await DeliveryModel.find({}).sort({ deliveryDate: 1 }).lean();
+  return deliveries.map(delivery => ({
+    id: delivery._id.toString(),
+    deliveryDate: delivery.deliveryDate,
+    products: delivery.products,
+    status: delivery.status,
+    createdAt: toISOString(delivery.createdAt),
+  }));
+}
+
+export async function createDelivery(deliveryData: Omit<Delivery, 'id' | 'createdAt'>): Promise<Delivery> {
+  await connectDB();
+  const delivery = await DeliveryModel.create(deliveryData);
+  return {
+    id: delivery._id.toString(),
+    deliveryDate: delivery.deliveryDate,
+    products: delivery.products,
+    status: delivery.status,
+    createdAt: toISOString(delivery.createdAt),
+  };
+}
+
+export async function updateDelivery(id: string, updates: Partial<Delivery>): Promise<Delivery | null> {
+  await connectDB();
+  const delivery = await DeliveryModel.findByIdAndUpdate(id, { $set: updates }, { new: true }).lean();
+  if (!delivery) return null;
+  return {
+    id: delivery._id.toString(),
+    deliveryDate: delivery.deliveryDate,
+    products: delivery.products,
+    status: delivery.status,
+    createdAt: toISOString(delivery.createdAt),
+  };
+}
+
+export async function findDeliveryById(id: string): Promise<Delivery | null> {
+  await connectDB();
+  const delivery = await DeliveryModel.findById(id).lean();
+  if (!delivery) return null;
+  return {
+    id: delivery._id.toString(),
+    deliveryDate: delivery.deliveryDate,
+    products: delivery.products,
+    status: delivery.status,
+    createdAt: toISOString(delivery.createdAt),
+  };
+}
+
+export async function findDeliveryByDate(deliveryDate: string): Promise<Delivery | null> {
+  await connectDB();
+  const delivery = await DeliveryModel.findOne({ deliveryDate, status: 'active' }).lean();
+  if (!delivery) return null;
+  return {
+    id: delivery._id.toString(),
+    deliveryDate: delivery.deliveryDate,
+    products: delivery.products,
+    status: delivery.status,
+    createdAt: toISOString(delivery.createdAt),
+  };
+}
+
+export async function deleteDelivery(id: string): Promise<boolean> {
+  await connectDB();
+  const result = await DeliveryModel.findByIdAndDelete(id);
+  return !!result;
 }
