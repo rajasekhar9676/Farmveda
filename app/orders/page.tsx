@@ -16,8 +16,25 @@ function OrdersContent() {
 
   useEffect(() => {
     loadOrders();
-    if (searchParams?.get('success') === 'true') {
+    
+    // Handle payment success/error messages
+    const success = searchParams?.get('success');
+    const error = searchParams?.get('error');
+    
+    if (success === 'payment_completed') {
+      alert('✅ Payment completed successfully! Invoice has been sent to your email.');
+    } else if (success === 'true') {
       alert('Order placed successfully!');
+    }
+    
+    if (error === 'payment_failed') {
+      alert('❌ Payment failed. Please try again.');
+    } else if (error === 'payment_error') {
+      alert('❌ An error occurred during payment processing. Please contact support.');
+    } else if (error === 'order_not_found') {
+      alert('❌ Order not found. Please contact support.');
+    } else if (error === 'invalid_order') {
+      alert('❌ Invalid order. Please contact support.');
     }
   }, [searchParams]);
 

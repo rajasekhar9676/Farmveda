@@ -301,6 +301,29 @@ export async function findOrderById(id: string): Promise<Order | null> {
   };
 }
 
+export async function findOrderByOrderNumber(orderNumber: string): Promise<Order | null> {
+  await connectDB();
+  const order = await OrderModel.findOne({ orderNumber }).lean();
+  if (!order) return null;
+  return {
+    id: (order._id as any).toString(),
+    orderNumber: order.orderNumber,
+    customerId: order.customerId,
+    customerName: order.customerName,
+    customerMobile: order.customerMobile,
+    customerAddress: order.customerAddress,
+    items: order.items,
+    totalAmount: order.totalAmount,
+    status: order.status,
+    deliveryDate: order.deliveryDate,
+    paymentLink: order.paymentLink || '',
+    paymentQRCode: order.paymentQRCode || '',
+    paidAt: order.paidAt || undefined,
+    deliveredAt: order.deliveredAt || undefined,
+    createdAt: order.createdAt || new Date().toISOString(),
+  };
+}
+
 // Initialize default admin user
 export async function initDefaultAdmin() {
   try {
