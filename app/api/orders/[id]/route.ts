@@ -97,7 +97,13 @@ export async function PATCH(
             callback_method: 'get',
           });
 
-          const paymentLink = paymentLinkData.short_url || paymentLinkData.url;
+          // Razorpay payment link response contains 'short_url' property
+          const paymentLink = paymentLinkData.short_url;
+          
+          if (!paymentLink) {
+            throw new Error('Payment link creation failed: short_url not found in response');
+          }
+          
           updates.paymentLink = paymentLink;
 
           // Generate QR code
